@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CORE — an energy clicker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A0D16;
+    --bg-glow: radial-gradient(circle at 50% 20%, rgba(77,232,212,0.08), transparent 55%);
+    --panel:#141826;
+    --panel-2:#1B2033;
+    --border:#272D42;
+    --cyan:#4DE8D4;
+    --cyan-dim:rgba(77,232,212,0.14);
+    --amber:#FFB84D;
+    --amber-dim:rgba(255,184,77,0.14);
+    --text:#EAF0F6;
+    --text-muted:#8891A3;
+    --danger:#FF6B6B;
+    --font-display:'Sora',sans-serif;
+    --font-body:'Inter',sans-serif;
+    --font-mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background-color:var(--bg);
+    background-image:var(--bg-glow);
+    color:var(--text);
+    font-family:var(--font-body);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  button{font-family:inherit;}
+  .app{max-width:1120px;margin:0 auto;padding:20px 20px 60px;}
+
+  /* ---------- Topbar ---------- */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:6px 4px 28px;
+    border-bottom:1px solid var(--border);
+    margin-bottom:32px;
+  }
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand-mark{
+    font-size:22px;color:var(--cyan);
+    text-shadow:0 0 14px rgba(77,232,212,.6);
+  }
+  .brand h1{
+    font-family:var(--font-display);font-weight:800;font-size:20px;
+    letter-spacing:.14em;margin:0;color:var(--text);
+  }
+  .brand p{margin:1px 0 0;font-size:12px;color:var(--text-muted);letter-spacing:.03em;}
+  .reset-btn{
+    background:transparent;border:1px solid var(--border);color:var(--text-muted);
+    font-size:12px;padding:8px 14px;border-radius:8px;cursor:pointer;
+    transition:border-color .15s ease, color .15s ease;
+  }
+  .reset-btn:hover{border-color:var(--danger);color:var(--danger);}
+  .reset-btn.confirming{
+    border-color:var(--danger);color:#fff;background:var(--danger);
+  }
+
+  /* ---------- Layout ---------- */
+  .layout{
+    display:grid;grid-template-columns:1.05fr 1fr;gap:36px;align-items:start;
+  }
+  @media (max-width:620px){
+    .layout{grid-template-columns:1fr;}
+  }
+
+  /* ---------- Core panel ---------- */
+  .panel-core{display:flex;flex-direction:column;align-items:center;padding-top:8px;}
+  .score-display{text-align:center;margin-bottom:34px;}
+  .score-value{
+    font-family:var(--font-mono);font-weight:700;font-size:56px;
+    color:var(--text);line-height:1;
+    text-shadow:0 0 30px rgba(77,232,212,.25);
+  }
+  .score-unit{
+    font-size:12px;letter-spacing:.3em;color:var(--text-muted);margin-top:6px;
+  }
+  .rate-value{
+    font-family:var(--font-mono);font-size:14px;color:var(--cyan);margin-top:10px;
+  }
+
+  .core-wrap{
+    position:relative;width:260px;height:260px;
+    display:flex;align-items:center;justify-content:center;
+    margin-bottom:22px;
+  }
+  .ring-outer{
+    position:absolute;inset:-22px;border-radius:50%;
+    border:1.5px dashed rgba(77,232,212,.35);
+    animation:spin 50s linear infinite;
+  }
+  .ring-mid{
+    position:absolute;inset:-4px;border-radius:50%;
+    box-shadow:0 0 70px 12px rgba(77,232,212,.22);
+    animation:pulseGlow 3.2s ease-in-out infinite;
+    pointer-events:none;
+  }
+  .core-btn{
+    width:210px;height:210px;border-radius:50%;border:none;cursor:pointer;
+    background:radial-gradient(circle at 34% 30%, #79FCEA, #1FCBAE 46%, #0B6E60 100%);
+    box-shadow:0 0 46px rgba(77,232,212,.45), inset 0 0 34px rgba(0,0,0,.35);
+    display:flex;align-items:center;justify-content:center;
+    transition:transform .08s ease, box-shadow .15s ease;
+    position:relative;overflow:visible;
+  }
+  .core-btn:hover{box-shadow:0 0 60px rgba(77,232,212,.6), inset 0 0 34px rgba(0,0,0,.35);}
+  .core-btn:active{transform:scale(.94);}
+  .core-btn:focus-visible{outline:2px solid var(--amber);outline-offset:6px;}
+  .core-glyph{
+    font-size:54px;color:rgba(6,20,18,.85);
+    filter:drop-shadow(0 2px 4px rgba(0,0,0,.25));
+    user-select:none;pointer-events:none;
+    transition:color .3s ease;
+  }
+  .click-hint{font-size:13px;color:var(--text-muted);margin:0;}
+
+  /* ---------- Amplify Core visual tiers ---------- */
+  .core-btn.tier-0{background:radial-gradient(circle at 34% 30%, #79FCEA, #1FCBAE 46%, #0B6E60 100%);box-shadow:0 0 46px rgba(77,232,212,.45), inset 0 0 34px rgba(0,0,0,.35);}
+  .core-btn.tier-1{background:radial-gradient(circle at 34% 30%, #9CFFF0, #22E0C4 46%, #0A6A5C 100%);box-shadow:0 0 54px rgba(77,232,212,.55), inset 0 0 34px rgba(0,0,0,.3);}
+  .core-btn.tier-2{background:radial-gradient(circle at 34% 30%, #FFEBB8, #FFB84D 42%, #7A4A12 100%);box-shadow:0 0 58px rgba(255,184,77,.55), inset 0 0 34px rgba(0,0,0,.3);}
+  .core-btn.tier-3{background:radial-gradient(circle at 34% 30%, #E4CCFF, #9B6BFF 42%, #3B1F73 100%);box-shadow:0 0 64px rgba(155,107,255,.55), inset 0 0 34px rgba(0,0,0,.3);}
+  .core-btn.tier-4{background:radial-gradient(circle at 34% 30%, #FFFFFF, #FF8FD6 40%, #7A1F5C 100%);box-shadow:0 0 72px rgba(255,143,214,.6), inset 0 0 34px rgba(0,0,0,.25);}
+  .core-btn.tier-5{background:conic-gradient(from 0deg at 50% 50%, #79FCEA, #FFB84D, #FF8FD6, #9B6BFF, #79FCEA);box-shadow:0 0 80px rgba(255,255,255,.55), inset 0 0 34px rgba(0,0,0,.2);animation:tierSpin 7s linear infinite;}
+  .core-btn.tier-0:hover{box-shadow:0 0 60px rgba(77,232,212,.6), inset 0 0 34px rgba(0,0,0,.35);}
+  .core-btn.tier-1:hover{box-shadow:0 0 68px rgba(77,232,212,.7), inset 0 0 34px rgba(0,0,0,.3);}
+  .core-btn.tier-2:hover{box-shadow:0 0 72px rgba(255,184,77,.7), inset 0 0 34px rgba(0,0,0,.3);}
+  .core-btn.tier-3:hover{box-shadow:0 0 78px rgba(155,107,255,.7), inset 0 0 34px rgba(0,0,0,.3);}
+  .core-btn.tier-4:hover{box-shadow:0 0 86px rgba(255,143,214,.75), inset 0 0 34px rgba(0,0,0,.25);}
+  .core-btn.tier-5:hover{box-shadow:0 0 96px rgba(255,255,255,.7), inset 0 0 34px rgba(0,0,0,.2);}
+  .core-glyph.tier-2,.core-glyph.tier-3,.core-glyph.tier-4,.core-glyph.tier-5{color:rgba(20,14,6,.82);}
+  @keyframes tierSpin{to{filter:hue-rotate(360deg);}}
+
+  .core-row{
+    display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;
+  }
+  @media (max-width:520px){
+    .core-row{flex-direction:column;gap:4px;}
+  }
+
+  /* ---------- Lighthouse ---------- */
+  .lighthouse-wrap{
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+    transform:translateY(6px);
+  }
+  .lighthouse-svg{width:118px;height:196px;overflow:visible;}
+  .lh-tower{fill:#1B2033;stroke:#272D42;stroke-width:1.5;}
+  .lh-stripe{fill:var(--danger);opacity:.4;}
+  .lh-base{fill:#20263A;stroke:#272D42;stroke-width:1.5;}
+  .lh-room{fill:#141826;stroke:#272D42;stroke-width:1.5;}
+  .lh-roof{fill:#272D42;}
+  .beacon-glow{
+    fill:var(--cyan);opacity:0;filter:blur(6px);
+    transform-origin:60px 46px;transition:opacity .4s ease, fill .4s ease;
+  }
+  .beacon-core{
+    fill:#3A4152;stroke:#454D63;stroke-width:1;
+    transition:fill .4s ease;
+  }
+  .beacon-rays{opacity:0;transition:opacity .4s ease;}
+  .beacon-rays path{fill:var(--cyan);transition:fill .4s ease;}
+  .lighthouse-label{
+    font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;
+    color:var(--text-muted);text-transform:uppercase;
+  }
+  .lighthouse-label b{color:var(--cyan);font-weight:700;}
+
+  .float-layer{position:absolute;inset:0;pointer-events:none;overflow:visible;}
+  .float-num{
+    position:absolute;font-family:var(--font-mono);font-weight:700;font-size:18px;
+    color:var(--amber);text-shadow:0 0 10px rgba(255,184,77,.5);
+    animation:floatUp .9s ease-out forwards;pointer-events:none;
+    transform:translate(-50%,-50%);
+  }
+  .ripple{
+    position:absolute;left:50%;top:50%;width:210px;height:210px;
+    border-radius:50%;border:2px solid rgba(77,232,212,.55);
+    transform:translate(-50%,-50%) scale(.3);
+    animation:rippleOut .6s ease-out forwards;pointer-events:none;
+  }
+  .particle{
+    position:absolute;width:5px;height:5px;border-radius:50%;
+    background:var(--cyan);left:50%;top:50%;
+    animation:particleFly .55s ease-out forwards;pointer-events:none;
+  }
+
+  /* ---------- Shop panel ---------- */
+  .panel-shop{display:flex;flex-direction:column;gap:26px;}
+  .shop-group h2{
+    font-family:var(--font-display);font-size:13px;letter-spacing:.18em;
+    color:var(--text-muted);margin:0 0 12px 2px;text-transform:uppercase;
+  }
+  .upgrade-card,.gen-row{
+    display:flex;align-items:center;gap:14px;
+    background:var(--panel);border:1px solid var(--border);border-radius:12px;
+    padding:12px 14px;margin-bottom:8px;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .upgrade-card:hover,.gen-row:hover{border-color:rgba(77,232,212,.35);background:var(--panel-2);}
+  .upgrade-icon,.gen-icon{
+    width:38px;height:38px;flex:0 0 auto;border-radius:9px;background:var(--cyan-dim);
+    display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--cyan);
+  }
+  .upgrade-info,.gen-info{flex:1;min-width:0;}
+  .upgrade-name,.gen-name{font-weight:600;font-size:14px;color:var(--text);}
+  .upgrade-desc,.gen-desc{font-size:12px;color:var(--text-muted);margin-top:2px;}
+  .gen-owned{
+    font-family:var(--font-mono);font-size:13px;color:var(--text-muted);
+    min-width:34px;text-align:right;
+  }
+  .buy-btn{
+    flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px;
+    background:var(--amber-dim);border:1px solid rgba(255,184,77,.3);
+    color:var(--amber);border-radius:9px;padding:8px 14px;cursor:pointer;
+    transition:background .15s ease, transform .08s ease;
+    min-width:92px;
+  }
+  .buy-btn:hover:not(:disabled){background:rgba(255,184,77,.24);}
+  .buy-btn:active:not(:disabled){transform:scale(.96);}
+  .buy-btn:disabled{opacity:.4;cursor:not-allowed;}
+  .buy-label{font-size:11px;letter-spacing:.05em;text-transform:uppercase;}
+  .buy-cost{font-family:var(--font-mono);font-size:13px;font-weight:700;}
+
+  .toast{
+    position:fixed;top:18px;left:50%;transform:translate(-50%,-10px);
+    background:var(--panel-2);border:1px solid var(--cyan);color:var(--text);
+    padding:12px 18px;border-radius:10px;font-size:13px;
+    box-shadow:0 8px 24px rgba(0,0,0,.4);
+    opacity:0;pointer-events:none;z-index:50;max-width:90vw;text-align:center;
+  }
+  .toast.show{animation:toastIn .35s ease forwards;}
+
+  @keyframes spin{to{transform:rotate(360deg);}}
+  @keyframes pulseGlow{0%,100%{opacity:.55;}50%{opacity:1;}}
+  @keyframes floatUp{0%{opacity:1;transform:translate(-50%,-50%) translateY(0);}100%{opacity:0;transform:translate(-50%,-50%) translateY(-64px);}}
+  @keyframes rippleOut{0%{transform:translate(-50%,-50%) scale(.5);opacity:.55;}100%{transform:translate(-50%,-50%) scale(1.35);opacity:0;}}
+  @keyframes particleFly{0%{transform:translate(0,0);opacity:1;}100%{transform:translate(var(--dx),var(--dy));opacity:0;}}
+  @keyframes toastIn{from{opacity:0;transform:translate(-50%,-10px);}to{opacity:1;transform:translate(-50%,4px);}}
+
+  @media (prefers-reduced-motion: reduce){
+    .ring-outer,.ring-mid{animation:none;}
+    .float-num,.ripple,.particle,.toast.show{animation-duration:.01ms !important;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">◉</span>
+      <div>
+        <h1>CORE</h1>
+        <p>an energy clicker</p>
+      </div>
+    </div>
+    <button class="reset-btn" id="resetBtn">Reset progress</button>
+  </header>
+
+  <main class="layout">
+    <section class="panel-core">
+      <div class="score-display">
+        <div class="score-value" id="scoreVal">0</div>
+        <div class="score-unit">WATTS</div>
+        <div class="rate-value" id="rateVal">+0.0 W/s</div>
+      </div>
+
+      <div class="core-row">
+        <div class="core-wrap" id="coreWrap">
+          <div class="ring-outer"></div>
+          <div class="ring-mid"></div>
+          <button class="core-btn" id="coreBtn" aria-label="Click to generate power">
+            <span class="core-glyph">⚡</span>
+          </button>
+          <div class="float-layer" id="floatLayer"></div>
+        </div>
+
+        <div class="lighthouse-wrap" id="lighthouseWrap" title="Brightens toward 1 trillion watts">
+          <svg class="lighthouse-svg" id="lighthouseSvg" viewBox="0 0 120 200" aria-hidden="true">
+            <g class="beacon-rays" id="beaconRays">
+              <path d="M60 46 L6 14 L6 -4 Z"/>
+              <path d="M60 46 L114 14 L114 -4 Z"/>
+            </g>
+            <circle class="beacon-glow" id="beaconGlow" cx="60" cy="46" r="34"></circle>
+            <path class="lh-roof" d="M40 46 L60 24 L80 46 Z"></path>
+            <rect class="lh-room" x="43" y="46" width="34" height="22" rx="3"></rect>
+            <circle class="beacon-core" id="beaconCore" cx="60" cy="57" r="8"></circle>
+            <rect class="lh-tower" x="46" y="68" width="28" height="98" rx="2"></rect>
+            <rect class="lh-stripe" x="46" y="84" width="28" height="10"></rect>
+            <rect class="lh-stripe" x="46" y="104" width="28" height="10"></rect>
+            <rect class="lh-stripe" x="46" y="124" width="28" height="10"></rect>
+            <rect class="lh-stripe" x="46" y="144" width="28" height="10"></rect>
+            <rect class="lh-base" x="38" y="166" width="44" height="14" rx="2"></rect>
+          </svg>
+          <div class="lighthouse-label">Signal <b id="lighthousePct">0%</b></div>
+        </div>
+      </div>
+      <p class="click-hint">Click the core to generate power</p>
+    </section> <section class="panel-shop">
+      <div class="shop-group">
+        <h2>Amplifier</h2>
+        <div id="ampCard"></div>
+      </div>
+      <div class="shop-group">
+        <h2>Generators</h2>
+        <div id="genList"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  var SAVE_KEY = "core-clicker-save";
+  var OFFLINE_CAP_MS = 2 * 60 * 60 * 1000;
+
+  var state = {
+    score: 0,
+    ampLevel: 0,
+    generators: [
+      { id:"solar", name:"Solar Panel",   desc:"Passive sunlight capture", icon:"◐", baseCost:15,     rate:0.1, owned:0 },
+      { id:"wind",  name:"Wind Turbine",  desc:"Spins with the breeze",    icon:"↻", baseCost:100,    rate:1,   owned:0 },
+      { id:"hydro", name:"Hydro Dam",     desc:"Harnesses river flow",     icon:"≈", baseCost:1100,   rate:8,   owned:0 },
+      { id:"fusion",name:"Fusion Reactor",desc:"Small star, contained",    icon:"⬡", baseCost:12000,  rate:50,  owned:0 },
+      { id:"dyson", name:"Dyson Swarm",   desc:"Encircles a sun",          icon:"✺", baseCost:130000, rate:260, owned:0 }
+    ]
+  };
+
+  var scoreVal = document.getElementById("scoreVal");
+  var rateVal = document.getElementById("rateVal");
+  var coreBtn = document.getElementById("coreBtn");
+  var coreWrap = document.getElementById("coreWrap");
+  var coreGlyph = document.querySelector(".core-glyph");
+  var floatLayer = document.getElementById("floatLayer");
+  var ampCard = document.getElementById("ampCard");
+  var genList = document.getElementById("genList");
+  var resetBtn = document.getElementById("resetBtn");
+  var toast = document.getElementById("toast");
+  var beaconGlow = document.getElementById("beaconGlow");
+  var beaconCore = document.getElementById("beaconCore");
+  var beaconRays = document.getElementById("beaconRays");
+  var lighthousePct = document.getElementById("lighthousePct");
+
+  var CORE_TIERS = [
+    { level:0,  glyph:"⚡", name:"Spark Core" },
+    { level:5,  glyph:"✦", name:"Bright Core" },
+    { level:10, glyph:"✷", name:"Amber Core" },
+    { level:20, glyph:"✸", name:"Violet Core" },
+    { level:35, glyph:"❂", name:"White-Hot Core" },
+    { level:50, glyph:"✹", name:"Prismatic Core" }
+  ];
+
+  function coreTierIndex(level){
+    var idx = 0;
+    for (var i = 0; i < CORE_TIERS.length; i++){
+      if (level >= CORE_TIERS[i].level) idx = i;
+    }
+    return idx;
+  }
+
+  function updateCoreTier(){
+    var idx = coreTierIndex(state.ampLevel);
+    var tierClass = "tier-" + idx;
+    coreBtn.className = "core-btn " + tierClass;
+    coreGlyph.className = "core-glyph " + tierClass;
+    coreGlyph.textContent = CORE_TIERS[idx].glyph;
+  }
+
+  // Lighthouse: brightens on a log scale, reaching full brightness at LIGHTHOUSE_MAX watts.
+  var LIGHTHOUSE_MAX = 1e12; // one trillion watts = max brightness
+  function updateLighthouse(){
+    var pct = Math.log10(state.score + 1) / Math.log10(LIGHTHOUSE_MAX);
+    pct = Math.max(0, Math.min(1, pct));
+    var glowColor = pct < 0.55 ? "#4DE8D4" : (pct < 0.85 ? "#FFB84D" : "#FFFFFF");
+    beaconGlow.style.opacity = (pct * 0.85).toFixed(3);
+    beaconGlow.style.fill = glowColor;
+    beaconGlow.setAttribute("r", (24 + pct * 40).toFixed(1));
+    beaconGlow.style.filter = "blur(" + (4 + pct * 14).toFixed(1) + "px)";
+    beaconCore.style.fill = pct < 0.05 ? "#3A4152" : glowColor;
+    var rayOpacity = Math.max(0, (pct - 0.15) * 1.15);
+    beaconRays.style.opacity = rayOpacity.toFixed(3);
+    var rayPaths = beaconRays.querySelectorAll("path");
+    rayPaths.forEach(function(p){ p.style.fill = glowColor; });
+    lighthousePct.textContent = Math.round(pct * 100) + "%";
+  }
+
+  function formatNumber(num){
+    if (num < 1000) return (num % 1 === 0) ? String(num) : num.toFixed(1);
+    var suffixes = ["","K","M","B","T","Qa","Qi","Sx","Sp","Oc"];
+    var tier = Math.min(Math.floor(Math.log10(num) / 3), suffixes.length - 1);
+    var scaled = num / Math.pow(1000, tier);
+    var decimals = scaled < 10 ? 2 : (scaled < 100 ? 1 : 0);
+    return scaled.toFixed(decimals) + suffixes[tier];
+  }
+
+  function clickValue(){ return 1 + state.ampLevel; }
+  function ampCost(){ return Math.ceil(25 * Math.pow(1.8, state.ampLevel)); }
+  function genCost(g){ return Math.ceil(g.baseCost * Math.pow(1.15, g.owned)); }
+  function totalRate(){
+    var sum = 0;
+    for (var i = 0; i < state.generators.length; i++){
+      sum += state.generators[i].rate * state.generators[i].owned;
+    }
+    return sum;
+  }
+
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.remove("show");
+    void toast.offsetWidth;
+    toast.classList.add("show");
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(function(){ toast.classList.remove("show"); }, 4200);
+  }
+
+  function spawnFloatingNumber(x, y, value){
+    var el = document.createElement("div");
+    el.className = "float-num";
+    el.style.left = x + "px";
+    el.style.top = y + "px";
+    el.textContent = "+" + formatNumber(value);
+    floatLayer.appendChild(el);
+    setTimeout(function(){ el.remove(); }, 950);
+  }
+
+  function spawnRipple(){
+    var el = document.createElement("div");
+    el.className = "ripple";
+    floatLayer.appendChild(el);
+    setTimeout(function(){ el.remove(); }, 650);
+  }
+
+  function spawnParticles(x, y){
+    var count = 3;
+    for (var i = 0; i < count; i++){
+      var angle = (Math.PI * 2 * i) / count + Math.random() * 0.5;
+      var dist = 40 + Math.random() * 20;
+      var dx = Math.cos(angle) * dist;
+      var dy = Math.sin(angle) * dist;
+      var p = document.createElement("div");
+      p.className = "particle";
+      p.style.left = x + "px";
+      p.style.top = y + "px";
+      p.style.setProperty("--dx", dx + "px");
+      p.style.setProperty("--dy", dy + "px");
+      floatLayer.appendChild(p);
+      (function(el){ setTimeout(function(){ el.remove(); }, 600); })(p);
+    }
+  }
+
+  function renderStats(){
+    scoreVal.textContent = formatNumber(state.score);
+    rateVal.textContent = "+" + formatNumber(totalRate()) + " W/s";
+    updateLighthouse();
+  }
+
+  function renderShop(){
+    var cost = ampCost();
+    var affordable = state.score >= cost;
+    ampCard.innerHTML =
+      '<div class="upgrade-card">' +
+        '<div class="upgrade-icon">⌁</div>' +
+        '<div class="upgrade-info">' +
+          '<div class="upgrade-name">Amplify Core</div>' +
+          '<div class="upgrade-desc">Level ' + state.ampLevel + ' · ' + CORE_TIERS[coreTierIndex(state.ampLevel)].name + ' · +' + clickValue() + ' W per click</div>' +
+        '</div>' +
+        '<button class="buy-btn" id="ampBuyBtn" ' + (affordable ? "" : "disabled") + '>' +
+          '<span class="buy-label">Upgrade</span>' +
+          '<span class="buy-cost">' + formatNumber(cost) + ' W</span>' +
+        '</button>' +
+      '</div>';
+    document.getElementById("ampBuyBtn").addEventListener("click", buyAmplifier);
+
+    var html = "";
+    for (var i = 0; i < state.generators.length; i++){
+      var g = state.generators[i];
+      var gc = genCost(g);
+      var canBuy = state.score >= gc;
+      html +=
+        '<div class="gen-row">' +
+          '<div class="gen-icon">' + g.icon + '</div>' +
+          '<div class="gen-info">' +
+            '<div class="gen-name">' + g.name + '</div>' +
+            '<div class="gen-desc">' + g.desc + ' · ' + formatNumber(g.rate) + ' W/s each</div>' +
+          '</div>' +
+          '<div class="gen-owned">×' + g.owned + '</div>' +
+          '<button class="buy-btn gen-buy" data-id="' + g.id + '" ' + (canBuy ? "" : "disabled") + '>' +
+            '<span class="buy-label">Buy</span>' +
+            '<span class="buy-cost">' + formatNumber(gc) + ' W</span>' +
+          '</button>' +
+        '</div>';
+    }
+    genList.innerHTML = html;
+
+    var buttons = genList.querySelectorAll(".gen-buy");
+    buttons.forEach(function(btn){
+      btn.addEventListener("click", function(){ buyGenerator(this.getAttribute("data-id")); });
+    });
+  }
+
+  function render(){ renderStats(); renderShop(); updateCoreTier(); }
+
+  function buyAmplifier(){
+    var cost = ampCost();
+    if (state.score < cost) return;
+    state.score -= cost;
+    state.ampLevel += 1;
+    render();
+    saveGame();
+  }
+
+  function buyGenerator(id){
+    var g = null;
+    for (var i = 0; i < state.generators.length; i++){
+      if (state.generators[i].id === id){ g = state.generators[i]; break; }
+    }
+    if (!g) return;
+    var cost = genCost(g);
+    if (state.score < cost) return;
+    state.score -= cost;
+    g.owned += 1;
+    render();
+    saveGame();
+  }
+
+  var EFFECT_THROTTLE_MS = 50;   // cap flourishes to ~20/sec, however fast clicks arrive
+  var lastEffectTime = 0;
+
+  coreBtn.addEventListener("click", function(e){
+    var val = clickValue();
+    state.score += val;
+    renderStats(); // always reflect the click immediately, independent of effect throttling
+
+    var now = performance.now();
+    var dueForEffect = (now - lastEffectTime >= EFFECT_THROTTLE_MS) && floatLayer.childElementCount < 60;
+    if (dueForEffect){
+      lastEffectTime = now;
+      var rect = coreWrap.getBoundingClientRect();
+      var x = e.clientX - rect.left;
+      var y = e.clientY - rect.top;
+      if (!isFinite(x) || (x === 0 && y === 0)){
+        x = rect.width / 2; y = rect.height / 2;
+      }
+      spawnFloatingNumber(x, y, val);
+      spawnRipple();
+      spawnParticles(x, y);
+    }
+  });
+
+  var resetConfirming = false;
+  var resetTimer = null;
+
+  resetBtn.addEventListener("click", function(){
+    if (!resetConfirming){
+      resetConfirming = true;
+      resetBtn.textContent = "Click again to confirm";
+      resetBtn.classList.add("confirming");
+      resetTimer = setTimeout(function(){
+        resetConfirming = false;
+        resetBtn.textContent = "Reset progress";
+        resetBtn.classList.remove("confirming");
+      }, 4000);
+      return;
+    }
+
+    clearTimeout(resetTimer);
+    resetConfirming = false;
+    resetBtn.textContent = "Reset progress";
+    resetBtn.classList.remove("confirming");
+
+    state.score = 0;
+    state.ampLevel = 0;
+    state.generators.forEach(function(g){ g.owned = 0; });
+    render();
+    try { window.storage.delete(SAVE_KEY, false).catch(function(){}); } catch (e) {}
+    showToast("Progress reset. Fresh start.");
+  });
+
+  function collectSaveData(){
+    return {
+      score: state.score,
+      ampLevel: state.ampLevel,
+      generators: state.generators.map(function(g){ return { id: g.id, owned: g.owned }; }),
+      savedAt: Date.now()
+    };
+  }
+
+  function saveGame(){
+    try {
+      window.storage.set(SAVE_KEY, JSON.stringify(collectSaveData()), false).catch(function(err){
+        console.error("Save failed:", err);
+      });
+    } catch (e) {
+      console.error("Storage unavailable, progress won't persist:", e);
+    }
+  }
+
+  function loadGame(){
+    try {
+      window.storage.get(SAVE_KEY, false).then(function(res){
+        if (!res || !res.value) { render(); return; }
+        var data = JSON.parse(res.value);
+        state.score = data.score || 0;
+        state.ampLevel = data.ampLevel || 0;
+        if (Array.isArray(data.generators)){
+          data.generators.forEach(function(sg){
+            var g = state.generators.find(function(x){ return x.id === sg.id; });
+            if (g) g.owned = sg.owned || 0;
+          });
+        }
+        var elapsedMs = Math.min(Date.now() - (data.savedAt || Date.now()), OFFLINE_CAP_MS);
+        var rate = totalRate();
+        var earned = (elapsedMs / 1000) * rate;
+        if (earned > 1){
+          state.score += earned;
+          var mins = Math.round(elapsedMs / 60000);
+          showToast("Welcome back! Your generators made " + formatNumber(earned) + " W while you were away (" + mins + " min).");
+        }
+        render();
+      }).catch(function(){
+        render();
+      });
+    } catch (e) {
+      console.error("Storage unavailable, starting fresh:", e);
+      render();
+    }
+  }
+
+  // Passive generation tick. Uses real elapsed time (Date.now) rather than
+  // requestAnimationFrame, since rAF can stall or be heavily throttled inside
+  // embedded/preview iframes — that was causing generators to earn nothing
+  // while manual clicks (a direct user gesture) still worked fine.
+  var lastTick = Date.now();
+  function tick(){
+    var now = Date.now();
+    var dt = (now - lastTick) / 1000;
+    lastTick = now;
+    if (dt > 0 && dt < 30){
+      var earned = totalRate() * dt;
+      if (earned > 0) state.score += earned;
+    }
+    renderStats();
+  }
+
+  loadGame();
+  setInterval(tick, 150);
+  setInterval(saveGame, 8000);
+  setInterval(renderShop, 1000);
+})();
+</script>
+</body>
+</html>
