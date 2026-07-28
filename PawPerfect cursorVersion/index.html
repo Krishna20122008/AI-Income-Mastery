@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PawPerfect — Raised with Love, Trained for Life</title>
+  <meta name="description" content="PawPerfect offers lovingly raised, professionally trained cats and dogs ready to become your family's best friend.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="header">
+    <nav class="nav container">
+      <a href="#" class="logo-link">
+        <img src="assets/logo.png" alt="PawPerfect" class="logo">
+      </a>
+      <button class="nav-toggle" aria-label="Menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#about">Our Promise</a></li>
+        <li><a href="#pets">Meet Our Pets</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#training">Training</a></li>
+        <li><a href="#contact" class="btn btn-sm">Inquire</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section id="home" class="hero">
+      <div class="hero-bg"></div>
+      <div class="container hero-content">
+        <p class="eyebrow">Your Pet. Your Family. Our Promise.</p>
+        <h1>Find Your <span>Perfect</span> Companion</h1>
+        <p class="hero-text">Every PawPerfect pet is raised with love and trained for life — ready to become the loyal best friend your family deserves.</p>
+        <div class="hero-actions">
+          <a href="#pets" class="btn">Browse Our Pets</a>
+          <a href="#about" class="btn btn-outline">Learn More</a>
+        </div>
+        <div class="hero-stats">
+          <div><strong>10</strong><span>Available Pets</span></div>
+          <div><strong>100%</strong><span>Training Included</span></div>
+          <div><strong>Lifetime</strong><span>Support</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="about" class="about section">
+      <div class="container about-grid">
+        <div class="about-image">
+          <img src="assets/pets/dog-5.jpg" alt="Well-trained Pomeranian giving a high-five">
+          <div class="about-badge">Professionally Trained</div>
+        </div>
+        <div class="about-text">
+          <p class="eyebrow">Raised with Love, Trained for Life</p>
+          <h2>More Than a Pet — A Promise</h2>
+          <p>At PawPerfect, we believe every cat and dog deserves a loving home — and every family deserves a companion they can trust completely. Our pets aren't just adorable; they're prepared for real life with you.</p>
+          <ul class="about-list">
+            <li>Raised in a nurturing, home-like environment</li>
+            <li>Socialized with people, children, and other pets</li>
+            <li>Professionally trained for obedience and manners</li>
+            <li>Health-checked and ready for their forever home</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="training" class="training section">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow">What Makes Us Different</p>
+          <h2>Training That Lasts a Lifetime</h2>
+        </div>
+        <div class="training-grid">
+          <article class="training-card">
+            <div class="icon">🐾</div>
+            <h3>Early Socialization</h3>
+            <p>Our pets grow up around loving handlers, children, and other animals — building confidence from day one.</p>
+          </article>
+          <article class="training-card">
+            <div class="icon">🎓</div>
+            <h3>Obedience Basics</h3>
+            <p>Sit, stay, recall, leash manners, and litter/house training — every pet graduates ready for family life.</p>
+          </article>
+          <article class="training-card">
+            <div class="icon">❤️</div>
+            <h3>Lifetime Support</h3>
+            <p>We stay by your side after adoption with guidance, tips, and a community of fellow PawPerfect families.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="pets" class="pets section">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow">Available Now</p>
+          <h2>Meet Our Pets</h2>
+          <p class="section-sub">Each companion is lovingly raised, fully trained, and ready to find their forever home.</p>
+        </div>
+        <div class="filter-bar">
+          <button class="filter-btn active" data-filter="all">All Pets</button>
+          <button class="filter-btn" data-filter="dog">Dogs</button>
+          <button class="filter-btn" data-filter="cat">Cats</button>
+        </div>
+        <div class="pets-grid" id="pets-grid"></div>
+      </div>
+    </section>
+
+    <section id="pricing" class="pricing section">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow">Transparent & Fair</p>
+          <h2>Our Pricing</h2>
+          <p class="section-sub">Every price includes professional training, health checks, and lifetime support — no hidden fees.</p>
+        </div>
+        <div class="pricing-grid">
+          <article class="pricing-card">
+            <div class="pricing-card-head">
+              <span class="pricing-icon">🐕</span>
+              <h3>Dogs</h3>
+              <p>Well-trained companions ready for walks, play, and family life.</p>
+            </div>
+            <ul class="pricing-list">
+              <li><span>Pug</span><strong>$1,800</strong></li>
+              <li><span>Pomeranian</span><strong>$2,200 – $2,400</strong></li>
+              <li><span>Sheltie</span><strong>$2,500</strong></li>
+              <li><span>Golden Retriever</span><strong>$2,800</strong></li>
+            </ul>
+          </article>
+          <article class="pricing-card featured">
+            <div class="pricing-badge">Most Popular</div>
+            <div class="pricing-card-head">
+              <span class="pricing-icon">🐾</span>
+              <h3>All-Inclusive Package</h3>
+              <p>Included with every PawPerfect adoption at no extra cost.</p>
+            </div>
+            <ul class="pricing-includes">
+              <li>Professional obedience training</li>
+              <li>Full health & vaccination check</li>
+              <li>Socialization program</li>
+              <li>Starter care kit & guide</li>
+              <li>Lifetime owner support</li>
+            </ul>
+            <a href="#contact" class="btn btn-full">Get Started</a>
+          </article>
+          <article class="pricing-card">
+            <div class="pricing-card-head">
+              <span class="pricing-icon">🐈</span>
+              <h3>Cats</h3>
+              <p>Gentle, litter-trained felines raised for calm companionship.</p>
+            </div>
+            <ul class="pricing-list">
+              <li><span>Long-Hair Tabby</span><strong>$1,400</strong></li>
+              <li><span>Siberian Tabby</span><strong>$1,500</strong></li>
+              <li><span>Persian Kitten</span><strong>$1,600</strong></li>
+              <li><span>Munchkin</span><strong>$1,700</strong></li>
+              <li><span>Maine Coon</span><strong>$2,000</strong></li>
+            </ul>
+          </article>
+        </div>
+        <p class="pricing-note">Final pricing may vary based on age, training level, and breed rarity. Contact us for a personalized quote.</p>
+      </div>
+    </section>
+
+    <section id="contact" class="contact section">
+      <div class="container contact-inner">
+        <div class="contact-text">
+          <p class="eyebrow">Ready to Adopt?</p>
+          <h2>Start Your PawPerfect Journey</h2>
+          <p>Interested in one of our pets? Send us an inquiry and we'll help you find the perfect match for your family.</p>
+        </div>
+        <form class="contact-form" id="contact-form">
+          <div class="form-row">
+            <label>
+              <span>Your Name</span>
+              <input type="text" name="name" required placeholder="Jane Doe">
+            </label>
+            <label>
+              <span>Email</span>
+              <input type="email" name="email" required placeholder="you@email.com">
+            </label>
+          </div>
+          <label>
+            <span>Pet of Interest</span>
+            <select name="pet" id="pet-select">
+              <option value="">Select a pet (optional)</option>
+            </select>
+          </label>
+          <label>
+            <span>Message</span>
+            <textarea name="message" rows="4" required placeholder="Tell us about your home and what you're looking for..."></textarea>
+          </label>
+          <button type="submit" class="btn btn-full">Send Inquiry</button>
+          <p class="form-note" id="form-note" hidden>Thank you! We'll be in touch soon.</p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <img src="assets/logo.png" alt="PawPerfect" class="footer-logo">
+      <p>Raised with Love, Trained for Life.</p>
+      <p class="footer-tag">Your Pet. Your Family. Our Promise.</p>
+      <p class="copyright">&copy; 2026 PawPerfect. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <div class="modal" id="pet-modal" aria-hidden="true">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <button class="modal-close" aria-label="Close">&times;</button>
+      <div class="modal-body" id="modal-body"></div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
